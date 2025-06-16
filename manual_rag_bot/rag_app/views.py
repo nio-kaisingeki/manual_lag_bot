@@ -1,6 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .forms import PDFUploadForm
+from .models import Document
+from .services import chroma_service, openai_service
 import fitz  # PyMuPDF
 
 chat_history = []
@@ -9,12 +11,24 @@ def home(request):
     if request.method == "POST":
         user_input = request.POST.get("user_input")
         chat_history.append({"sender": "user", "text": user_input})
-        chat_history.append({"sender": "bot", "text": "これはダミーの応答です。"})
+
+        context_docs = chroma_service.query(user_input)
+        context_text = "\n".join(context_docs)
+        answer = openai_service.ask_with_context(user_input, context_text)
+
+        chat_history.append({"sender": "bot", "text": answer})
 
     return render(request, "rag_app/home.html", {"messages": chat_history})
 
 
 def chat(request):
+    if request.method == "POST":
+        user_input = request.POST.get("message")
+        context_docs = chroma_service.query(user_input)
+        context_text = "\n".join(context_docs)
+        answer = openai_service.ask_with_context(user_input, context_text)
+        return JsonResponse({"response": answer})
+
     return render(request, "rag_app/chat.html")
 
 
@@ -28,7 +42,8 @@ def pdf_upload_view(request):
             doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
             for page in doc:
                 text += page.get_text()
-            # ここでtextを次のステップに渡せるように保存などする
+            document = Document.objects.create(title=pdf_file.name, text=text)
+            chroma_service.add_document(str(document.id), text)
             return render(request, "rag_app/upload_success.html", {"text": text})
     else:
         form = PDFUploadForm()
