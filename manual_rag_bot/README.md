@@ -20,7 +20,7 @@
    ```bash
    python manage.py migrate
    ```
-5. ChromaDB を起動します。Docker を利用する場合は次のコマンドで Django と合わせて起動できます。
+5. ChromaDB を起動します。Docker を利用する場合は次のコマンドで Django と合わせて起動できます。Docker イメージは Python クライアントと互換性のある `chromadb/chroma:0.4.24` を使用します。
    ```bash
    docker-compose up --build
    ```

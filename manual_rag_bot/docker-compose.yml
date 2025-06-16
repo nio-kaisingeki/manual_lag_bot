@@ -15,6 +15,7 @@ services:
       - chromadb
 
   chromadb:
-    image: chromadb/chroma
+    # Pin the server version to match the Python client
+    image: chromadb/chroma:0.4.24
     ports:
       - "8001:8000"
