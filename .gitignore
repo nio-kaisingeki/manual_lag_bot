@@ -1,0 +1,17 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+
+# Django database
+manual_rag_bot/db.sqlite3
+
+# Environment files
+.env
+
+# IDE folders
+.idea/
+.vscode/
+
+# Build/coverage outputs
+*.egg-info/
+.DS_Store
