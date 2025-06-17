@@ -38,13 +38,11 @@ def _ensure_connection() -> None:
 def add_document(doc_id: str, text: str) -> None:
     """Add document text to the Chroma collection."""
     _ensure_connection()
-    embedding = openai_service.create_embeddings([text])[0]
-    _collection.add(documents=[text], ids=[doc_id], embeddings=[embedding])
+    _collection.add(documents=[text], ids=[doc_id])
 
 
 def query(text: str, n_results: int = 3) -> list[str]:
     """Return the most similar documents' texts."""
     _ensure_connection()
-    embedding = openai_service.create_embeddings([text])[0]
-    results = _collection.query(query_embeddings=[embedding], n_results=n_results)
+    results = _collection.query(query_texts=[text], n_results=n_results)
     return results.get("documents", [[]])[0]
