@@ -21,6 +21,8 @@
    python manage.py migrate
    ```
 5. ChromaDB を起動します。Docker を利用する場合は次のコマンドで Django と合わせて起動できます。Docker イメージは Python クライアントと互換性のある `chromadb/chroma:0.4.24` を使用します。
+   本リポジトリでは OpenAI の埋め込み API を直接呼び出す実装に変更しているため、
+   ChromaDB サーバー側のバージョン差異によるエラーは発生しません。
    ```bash
    docker-compose up --build
    ```

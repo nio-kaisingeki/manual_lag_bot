@@ -1,9 +1,8 @@
 import chromadb
-from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 import os
 import time
+from . import openai_service
 
-_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 _CHROMA_HOST = os.getenv("CHROMA_HOST", "chromadb")
 _CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
 
@@ -24,8 +23,10 @@ def _ensure_connection() -> None:
         try:
             if _client is None:
                 _client = chromadb.HttpClient(host=_CHROMA_HOST, port=_CHROMA_PORT)
-            embedding_fn = OpenAIEmbeddingFunction(api_key=_OPENAI_API_KEY)
-            _collection = _client.get_or_create_collection("documents", embedding_function=embedding_fn)
+            _collection = _client.get_or_create_collection(
+                "documents",
+                embedding_function=openai_service.create_embeddings,
+            )
             return
         except Exception as exc:  # pragma: no cover - relies on external service
             last_exc = exc
@@ -37,11 +38,13 @@ def _ensure_connection() -> None:
 def add_document(doc_id: str, text: str) -> None:
     """Add document text to the Chroma collection."""
     _ensure_connection()
-    _collection.add(documents=[text], ids=[doc_id])
+    embedding = openai_service.create_embeddings([text])[0]
+    _collection.add(documents=[text], ids=[doc_id], embeddings=[embedding])
 
 
 def query(text: str, n_results: int = 3) -> list[str]:
     """Return the most similar documents' texts."""
     _ensure_connection()
-    results = _collection.query(query_texts=[text], n_results=n_results)
+    embedding = openai_service.create_embeddings([text])[0]
+    results = _collection.query(query_embeddings=[embedding], n_results=n_results)
     return results.get("documents", [[]])[0]
