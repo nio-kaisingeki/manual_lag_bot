@@ -16,6 +16,10 @@
    ```bash
    pip install -r requirements.txt
    ```
+   `requirements.txt` では OpenAI クライアントと互換性のある
+   `httpx==0.26.0` を指定しています。`httpx` 0.27 以降では
+   `proxies` 引数が削除されているため、これより新しいバージョンを
+   インストールすると起動時に `Client.__init__()` エラーが発生します。
 4. マイグレーションを適用します。
    ```bash
    python manage.py migrate
