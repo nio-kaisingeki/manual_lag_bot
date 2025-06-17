@@ -1,25 +1,47 @@
 import chromadb
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 import os
+import time
 
 _OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+_CHROMA_HOST = os.getenv("CHROMA_HOST", "chromadb")
+_CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
 
-# When running via docker-compose the Chroma service is available on the
-# `chromadb` host inside the Docker network. Use that as the default.
-_client = chromadb.HttpClient(
-    host=os.getenv("CHROMA_HOST", "chromadb"),
-    port=int(os.getenv("CHROMA_PORT", "8000")),
-)
-_embedding_fn = OpenAIEmbeddingFunction(api_key=_OPENAI_API_KEY)
-_collection = _client.get_or_create_collection("documents", embedding_function=_embedding_fn)
+_client = None
+_collection = None
+
+
+def _ensure_connection() -> None:
+    """Connect to ChromaDB lazily, retrying until it becomes available."""
+
+    global _client, _collection
+    if _collection is not None:
+        return
+
+    attempts = 5
+    last_exc: Exception | None = None
+    for _ in range(attempts):
+        try:
+            if _client is None:
+                _client = chromadb.HttpClient(host=_CHROMA_HOST, port=_CHROMA_PORT)
+            embedding_fn = OpenAIEmbeddingFunction(api_key=_OPENAI_API_KEY)
+            _collection = _client.get_or_create_collection("documents", embedding_function=embedding_fn)
+            return
+        except Exception as exc:  # pragma: no cover - relies on external service
+            last_exc = exc
+            time.sleep(2)
+
+    raise RuntimeError("Could not connect to ChromaDB service") from last_exc
 
 
 def add_document(doc_id: str, text: str) -> None:
     """Add document text to the Chroma collection."""
+    _ensure_connection()
     _collection.add(documents=[text], ids=[doc_id])
 
 
 def query(text: str, n_results: int = 3) -> list[str]:
     """Return the most similar documents' texts."""
+    _ensure_connection()
     results = _collection.query(query_texts=[text], n_results=n_results)
     return results.get("documents", [[]])[0]
