@@ -4,6 +4,8 @@ import hashlib
 import logging
 import openai
 
+_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+
 _CLIENT = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -48,7 +50,7 @@ def ask_openai(prompt: str) -> str:
 
     try:
         response = _CLIENT.chat.completions.create(
-            model="gpt-4",
+            model=_MODEL_NAME,
             messages=[
                 {"role": "system", "content": "あなたは親切なアシスタントです。"},
                 {"role": "user", "content": prompt},
