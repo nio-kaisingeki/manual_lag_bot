@@ -14,6 +14,8 @@
    OpenAI API キーは `OPENAI_API_KEY` に指定してください。ChromaDB への接続先を
    変更したい場合は `CHROMA_HOST` と `CHROMA_PORT` を指定します (デフォルトは
    `chromadb:8000`)。
+   OpenAI API キーが未設定または API 利用上限に達している場合は、ハッシュ値を
+   用いた簡易埋め込みにフォールバックします。
 3. 依存パッケージをインストールします。
    ```bash
    pip install -r requirements.txt
