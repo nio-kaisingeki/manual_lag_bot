@@ -16,8 +16,9 @@
    `chromadb:8000`)。
    利用する ChatGPT モデルを変更したい場合は `OPENAI_MODEL` にモデル名を設定でき
    ます (デフォルトは `gpt-3.5-turbo`)。
-   OpenAI API キーが未設定または API 利用上限に達している場合は、ハッシュ値を
-   用いた簡易埋め込みにフォールバックします。
+   OpenAI API キーが未設定、または `.env` に記載されている
+   `your-openai-key` のままの場合や API 利用上限に達している場合は、
+   ハッシュ値を用いた簡易埋め込みにフォールバックします。
 3. 依存パッケージをインストールします。
    ```bash
    pip install -r requirements.txt
