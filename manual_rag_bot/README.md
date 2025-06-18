@@ -22,17 +22,17 @@
    `httpx==0.26.0` を指定しています。`httpx` 0.27 以降では
    `proxies` 引数が削除されているため、これより新しいバージョンを
    インストールすると起動時に `Client.__init__()` エラーが発生します。
-4. マイグレーションを適用します。
+4. マイグレーションを適用します。Docker を利用する場合は `docker-compose` が自動で実行しますが、ローカルで起動する際は次のコマンドを実行してください。
    ```bash
    python manage.py migrate
    ```
 5. ChromaDB を起動します。Docker を利用する場合は次のコマンドで Django と合わせて起動できます。Docker イメージは Python クライアントと互換性のある `chromadb/chroma:0.4.24` を使用します。
    本リポジトリでは OpenAI の埋め込み API を直接呼び出す実装に変更しているため、
-   ChromaDB サーバー側のバージョン差異によるエラーは発生しません。
+   ChromaDB サーバー側のバージョン差異によるエラーは発生しません。`docker-compose` では起動時に自動でマイグレーションが実行されます。
    ```bash
    docker-compose up --build
    ```
-   もしくは `chromadb` サービスだけを起動してから `python manage.py runserver` で開発サーバーを起動してください。
+   もしくは `chromadb` サービスだけを起動してから `python manage.py runserver` で開発サーバーを起動してください。その場合は上記のマイグレーションコマンドを手動で実行してください。
 
 ## 使い方
 - `http://localhost:8000/` にアクセスするとログイン画面が表示されます。登録後にチャットを利用できます。
