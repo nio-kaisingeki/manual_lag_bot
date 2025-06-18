@@ -4,6 +4,23 @@ import openai
 _CLIENT = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
+class OpenAIEmbeddingFunction:
+    """Embedding function compatible with ChromaDB."""
+
+    def __call__(self, input: list[str]) -> list[list[float]]:
+        if _no_api_key():
+            raise RuntimeError("OPENAI_API_KEY が設定されていません。")
+
+        res = _CLIENT.embeddings.create(
+            model="text-embedding-3-small",
+            input=input,
+        )
+        return [record.embedding for record in res.data]
+
+
+EMBEDDING_FUNCTION = OpenAIEmbeddingFunction()
+
+
 def _no_api_key() -> bool:
     """Return True if the OpenAI API key is not configured."""
     return not _CLIENT.api_key

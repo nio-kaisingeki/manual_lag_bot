@@ -35,7 +35,7 @@ def _get_collection(user_id: int):
     if user_id not in _collections:
         _collections[user_id] = _client.get_or_create_collection(
             f"documents_{user_id}",
-            embedding_function=openai_service.create_embeddings,
+            embedding_function=openai_service.EMBEDDING_FUNCTION,
         )
     return _collections[user_id]
 
