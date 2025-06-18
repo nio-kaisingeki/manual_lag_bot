@@ -1,39 +1,20 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>RAGチャット</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .chat-box { border: 1px solid #ccc; padding: 20px; height: 400px; overflow-y: auto; margin-bottom: 20px; }
-        .message { margin: 10px 0; }
-        .user { color: blue; font-weight: bold; }
-        .bot { color: green; font-weight: bold; }
-        form { display: flex; }
-        input[type="text"] { flex-grow: 1; padding: 8px; font-size: 16px; }
-        button { padding: 8px 16px; font-size: 16px; }
-    </style>
-</head>
-<body>
-    <h1>RAGチャットデモ</h1>
-
-    <div class="chat-box">
-        <!-- メッセージをここに表示する -->
-        {% if messages %}
-            {% for msg in messages %}
-                <div class="message">
-                    <span class="{{ msg.sender }}">{{ msg.sender|title }}:</span> {{ msg.text }}
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>会話はまだありません。</p>
-        {% endif %}
-    </div>
-
-    <form method="post">
-        {% csrf_token %}
-        <input type="text" name="user_input" placeholder="メッセージを入力..." required>
-        <button type="submit">送信</button>
-    </form>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<h1>RAGチャットデモ</h1>
+<div class="chat-box">
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="message">
+                <span class="{{ msg.sender }}">{{ msg.sender|title }}:</span> {{ msg.text }}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>会話はまだありません。</p>
+    {% endif %}
+</div>
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="user_input" placeholder="メッセージを入力..." required>
+    <button type="submit">送信</button>
+</form>
+{% endblock %}

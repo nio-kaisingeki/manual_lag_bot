@@ -1,39 +1,27 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>RAGチャット</title>
-    <style>
-        .chat-box { border: 1px solid #ccc; padding: 20px; height: 400px; overflow-y: auto; margin-bottom: 20px; }
-        .user-message { color: blue; }
-        .bot-message { color: green; }
-    </style>
-</head>
-<body>
-    <h1>非同期チャット</h1>
-    <div id="chat-box" class="chat-box"></div>
-    <input type="text" id="user-input" placeholder="メッセージを入力..." />
-    <button id="send-btn">送信</button>
+{% extends 'base.html' %}
+{% block content %}
+<h1>非同期チャット</h1>
+<div id="chat-box" class="chat-box"></div>
+<input type="text" id="user-input" placeholder="メッセージを入力..." />
+<button id="send-btn">送信</button>
+<script>
+const chatBox = document.getElementById('chat-box');
+const input = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
 
-    <script>
-    const chatBox = document.getElementById('chat-box');
-    const input = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-
-    sendBtn.addEventListener('click', () => {
-        const userInput = input.value;
-        chatBox.innerHTML += `<div class="user-message">${userInput}</div>`;
-        input.value = '';
-        fetch('/chat/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
-            body: new URLSearchParams({ message: userInput })
-        })
-        .then(response => response.json())
-        .then(data => {
-            chatBox.innerHTML += `<div class="bot-message">${data.response}</div>`;
-        });
+sendBtn.addEventListener('click', () => {
+    const userInput = input.value;
+    chatBox.innerHTML += `<div class="user-message">${userInput}</div>`;
+    input.value = '';
+    fetch('{% url "chat" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: new URLSearchParams({ message: userInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        chatBox.innerHTML += `<div class="bot-message">${data.response}</div>`;
     });
-    </script>
-</body>
-</html>
+});
+</script>
+{% endblock %}

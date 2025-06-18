@@ -1,16 +1,18 @@
 # manual_rag_bot
 
-`manual_rag_bot` は社内マニュアルをアップロードして検索・回答に活用する簡易RAG (Retrieval Augmented Generation) アプリケーションです。PDF から抽出したテキストを ChromaDB に登録し、質問時には関連する文書を参照して OpenAI モデルにコンテキストとして渡します。
+`manual_rag_bot` は社内マニュアルをアップロードして検索・回答に活用する簡易RAG (Retrieval Augmented Generation) アプリケーションです。PDF から抽出したテキストを ChromaDB に登録し、質問時には関連する文書を参照して OpenAI モデルにコンテキストとして渡します。ユーザーごとにアップロードしたマニュアルを管理でき、他のユーザーの文書は参照されません。
 
 ## 主な機能
-- **PDFアップロード**: `/pdf_upload/` で PDF をアップロードすると、内容が `Document` モデルに保存され、ChromaDB コレクションに追加されます。
-- **チャットインターフェース**: `/chat/` では非同期チャット、トップページでは同期チャットが利用できます。入力された質問に対し、保存済み文書を検索して得たテキストをコンテキストに含めて回答を生成します。
+- **ユーザー登録・ログイン**
+- **PDFアップロード**: `/pdf_upload/` で PDF をアップロードすると、内容が `Document` モデルに保存され、ユーザーごとの ChromaDB コレクションに追加されます。
+- **チャットインターフェース**: `/chat/` では非同期チャット、トップページでは同期チャットが利用できます。アップロードした文書のみを参照して回答を生成します。
+- **マニュアル管理**: `/documents/` で自分のアップロード済みマニュアルを一覧・削除できます。
 
 ## セットアップ
 1. Python 3.12 をインストールしてください。
-2. OpenAI API キーを環境変数 `OPENAI_API_KEY` で設定するか、`.env` ファイルに
-   `OPENAI_API_KEY=...` と記述します。ChromaDB への接続先を変更したい場合は
-   `CHROMA_HOST` と `CHROMA_PORT` を指定してください (デフォルトは
+2. `.env.example` をコピーして `.env` を作成し、必要な環境変数を設定します。
+   OpenAI API キーは `OPENAI_API_KEY` に指定してください。ChromaDB への接続先を
+   変更したい場合は `CHROMA_HOST` と `CHROMA_PORT` を指定します (デフォルトは
    `chromadb:8000`)。
 3. 依存パッケージをインストールします。
    ```bash
@@ -20,21 +22,22 @@
    `httpx==0.26.0` を指定しています。`httpx` 0.27 以降では
    `proxies` 引数が削除されているため、これより新しいバージョンを
    インストールすると起動時に `Client.__init__()` エラーが発生します。
-4. マイグレーションを適用します。
+4. マイグレーションを適用します。Docker を利用する場合は `docker-compose` が自動で実行しますが、ローカルで起動する際は次のコマンドを実行してください。
    ```bash
    python manage.py migrate
    ```
 5. ChromaDB を起動します。Docker を利用する場合は次のコマンドで Django と合わせて起動できます。Docker イメージは Python クライアントと互換性のある `chromadb/chroma:0.4.24` を使用します。
    本リポジトリでは OpenAI の埋め込み API を直接呼び出す実装に変更しているため、
-   ChromaDB サーバー側のバージョン差異によるエラーは発生しません。
+   ChromaDB サーバー側のバージョン差異によるエラーは発生しません。`docker-compose` では起動時に自動でマイグレーションが実行されます。
    ```bash
    docker-compose up --build
    ```
-   もしくは `chromadb` サービスだけを起動してから `python manage.py runserver` で開発サーバーを起動してください。
+   もしくは `chromadb` サービスだけを起動してから `python manage.py runserver` で開発サーバーを起動してください。その場合は上記のマイグレーションコマンドを手動で実行してください。
 
 ## 使い方
-- `http://localhost:8000/` にアクセスするとチャット画面が表示されます。
-- `http://localhost:8000/pdf_upload/` で PDF をアップロードすると、内容が検索対象に追加されます。
+- `http://localhost:8000/` にアクセスするとログイン画面が表示されます。登録後にチャットを利用できます。
+- `http://localhost:8000/pdf_upload/` で PDF をアップロードすると、内容が自身の検索対象に追加されます。
+- `http://localhost:8000/documents/` でアップロード済みマニュアルを一覧・削除できます。
 - `http://localhost:8000/chat/` は非同期チャット用のエンドポイントです。
 
 ## テスト
