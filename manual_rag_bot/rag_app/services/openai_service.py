@@ -14,7 +14,7 @@ class OpenAIEmbeddingFunction:
 
     def __call__(self, input: list[str]) -> list[list[float]]:
         if _no_api_key():
-            raise RuntimeError("OPENAI_API_KEY が設定されていません。")
+            return [simple_embedding(text) for text in input]
 
         try:
             res = _CLIENT.embeddings.create(
@@ -40,7 +40,7 @@ def simple_embedding(text: str, dim: int = 1536) -> list[float]:
 
 def _no_api_key() -> bool:
     """Return True if the OpenAI API key is not configured."""
-    return not _CLIENT.api_key
+    return not _CLIENT.api_key or _CLIENT.api_key == "your-openai-key"
 
 
 def ask_openai(prompt: str) -> str:
@@ -74,7 +74,7 @@ def ask_with_context(question: str, context: str) -> str:
 def create_embeddings(texts: list[str]) -> list[list[float]]:
     """Return embeddings for the provided texts."""
     if _no_api_key():
-        raise RuntimeError("OPENAI_API_KEY が設定されていません。")
+        return [simple_embedding(text) for text in texts]
 
     try:
         res = _CLIENT.embeddings.create(
