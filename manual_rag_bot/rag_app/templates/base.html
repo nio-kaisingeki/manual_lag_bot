@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Manual Bot</title>
+</head>
+<body>
+<nav>
+    <a href="{% url 'home' %}">ホーム</a> |
+    <a href="{% url 'pdf_upload' %}">アップロード</a> |
+    <a href="{% url 'document_list' %}">マニュアル一覧</a> |
+    {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}">ログアウト</a>
+    {% else %}
+      <a href="{% url 'login' %}">ログイン</a>
+    {% endif %}
+</nav>
+<hr>
+{% block content %}{% endblock %}
+</body>
+</html>
